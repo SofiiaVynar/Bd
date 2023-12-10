@@ -285,7 +285,7 @@ def location_update(id):
 
     street_name = request.json['street_name']
     street_number = request.json['street_number']
-    city_id = request.json['city_id']
+    city_id = request.json['cities_cities_id']
 
     location.street_name = street_name
     location.street_number = street_number
@@ -593,21 +593,54 @@ def car_update(id):
     return car_schema.jsonify(car)
 
 
-@app.route('/cardelete/<id>', methods=['DELETE'])
-def car_delete(id):
-    car = Cars.query.get(id)
+@app.route('/cardelete/<int:id>', methods=['DELETE'])
+def delete_car(id):
+    car_to_delete = Cars.query.get_or_404(id)
+    associated_vehicles = Vehicles.query.filter_by(cars_cars_id=id).all()
 
-    if car:
-        vehicles_with_car = Vehicles.query.filter_by(cars_cars_id=id).all()
+    for vehicle in associated_vehicles:
+        drivers_associated_with_vehicle = Drivers.query.filter_by(vehicles_vehicles_id=vehicle.vehicles_id).all()
 
-        for vehicle in vehicles_with_car:
-            vehicle.car = None
+        for driver in drivers_associated_with_vehicle:
+            ratings_associated_with_driver = Rating.query.filter_by(drivers_drivers_id=driver.drivers_id).all()
+            for rating in ratings_associated_with_driver:
+                db.session.delete(rating)
 
-        db.session.delete(car)
-        db.session.commit()
-        return jsonify({'message': f'Car with ID {id} deleted successfully'})
-    else:
-        return jsonify({'message': 'Car not found'}), 404
+        for driver in drivers_associated_with_vehicle:
+            db.session.delete(driver)
+
+    db.session.delete(car_to_delete)
+    db.session.commit()
+    return jsonify({'message': 'Car deleted successfully'})
+
+
+@app.route('/vandelete/<int:id>', methods=['DELETE'])
+def delete_van(id):
+    van_to_delete = Vans.query.get_or_404(id)
+    associated_vehicles = Vehicles.query.filter_by(vans_vans_id=id).all()
+
+    for vehicle in associated_vehicles:
+        drivers_associated_with_vehicle = Drivers.query.filter_by(vehicles_vehicles_id=vehicle.vehicles_id).all()
+
+        for driver in drivers_associated_with_vehicle:
+            ratings_associated_with_driver = Rating.query.filter_by(drivers_drivers_id=driver.drivers_id).all()
+            for rating in ratings_associated_with_driver:
+                db.session.delete(rating)
+
+        for driver in drivers_associated_with_vehicle:
+            db.session.delete(driver)
+
+    db.session.delete(van_to_delete)
+    db.session.commit()
+    return jsonify({'message': 'Van deleted successfully'})
+
+
+@app.route('/vehicledelete/<int:id>', methods=['DELETE'])
+def delete_vehicle(id):
+    vehicle_to_delete = Vehicles.query.get_or_404(id)
+    db.session.delete(vehicle_to_delete)
+    db.session.commit()
+    return jsonify({'message': 'Vehicle deleted successfully'})
 
 
 @app.route('/newcar', methods=['POST'])

@@ -78,6 +78,8 @@ class Cars(db.Model):
     year = db.Column(db.Integer, nullable=True)
     seats_seat_id = db.Column(db.Integer, db.ForeignKey('seats.seats_id'), nullable=False)
     seat = db.relationship('Seats', backref='cars')
+    vehicle_list = db.relationship('Vehicles', backref='car_reference', cascade='all, delete',
+                                   foreign_keys='Vehicles.cars_cars_id')
 
 
 class Vans(db.Model):
@@ -88,6 +90,8 @@ class Vans(db.Model):
     year = db.Column(db.Integer, nullable=True)
     seats_seats_id = db.Column(db.Integer, db.ForeignKey('seats.seats_id'), nullable=False)
     seat = db.relationship('Seats', backref='vans')
+    vehicle_list = db.relationship('Vehicles', backref='van_reference', cascade='all, delete',
+                                   foreign_keys='Vehicles.vans_vans_id')
 
 
 class Vehicles(db.Model):
